@@ -1,25 +1,48 @@
-import logo from './logo.svg';
+// src/App.jsx
+import React, { useState, useEffect } from 'react';
+import { fetchWeather, fetchForecast } from './utils/api';
+import WeatherCard from './components/WeatherCard';
 import './App.css';
 
-function App() {
+const App = () => {
+  const [city, setCity] = useState('New York'); // Default city
+  const [weather, setWeather] = useState(null);
+  const [forecast, setForecast] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const getWeather = async () => {
+      const weatherData = await fetchWeather(city);
+      if (weatherData) {
+        setWeather(weatherData);
+        const forecastData = await fetchForecast(city);
+        setForecast(forecastData);
+      } else {
+        setError('Unable to fetch weather data. Please try again.');
+      }
+    };
+    getWeather();
+  }, [city]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+    <div className="app">
+      <header className="header">
+        <h1 className="title">WeatherVue</h1>
+        <input
+          type="text"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          placeholder="Enter city"
+          className="city-input"
+        />
       </header>
+      <main className="main">
+        {error && <p className="error">{error}</p>}
+        {weather && <WeatherCard weather={weather} />}
+        {/* Add Forecast Component here */}
+      </main>
     </div>
   );
-}
+};
 
 export default App;
